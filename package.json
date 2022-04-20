@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@rarible/connector": "^0.8.52-beta18",
+    "@rarible/connector-helper": "^0.8.52-beta18",
+    "@rarible/connector-walletconnect": "^0.8.52-beta18",
+    "@rarible/sdk": "^0.8.52",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^13.5.0",
@@ -10,11 +14,15 @@
     "@types/node": "^16.11.27",
     "@types/react": "^18.0.5",
     "@types/react-dom": "^18.0.1",
+    "axios": "^0.26.1",
+    "ethers": "^5.6.4",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.6.3",
-    "web-vitals": "^2.1.4"
+    "react-scripts": "4.0.3",
+    "tslib": "2.3.1",
+    "typescript": "^4.5.0",
+    "web-vitals": "^2.1.4",
+    "web3": "1.5.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -28,6 +36,8 @@
       "react-app/jest"
     ]
   },
+  "main": "src/index.tsx",
+  "homepage": ".",
   "browserslist": {
     "production": [
       ">0.2%",
