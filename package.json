@@ -39,7 +39,7 @@
     ]
   },
   "main": "src/index.tsx",
-  "homepage": "https://l-u-k-o-s.github.io",
+  "homepage": "https://l-u-k-o-s.github.io/nft-react",
   "browserslist": {
     "production": [
       ">0.2%",
