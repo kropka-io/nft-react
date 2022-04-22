@@ -38,6 +38,9 @@ const darova = async () => {
             async open(uri: string, cb: any, opts?: any) {
 
                 // console.log(cb.toString())
+                console.log(window)
+                // @ts-ignore
+                console.log(window?.TESTCHANNEL)
                 console.log(uri)
                 // await cb()
             },
