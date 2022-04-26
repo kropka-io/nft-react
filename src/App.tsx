@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import darova from "./nft";
+import nft from "./nft";
 
 function App() {
   return (
@@ -11,7 +11,8 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
-        <button onClick={darova}> sdkjahfkjhsdfkjhakjfhjkh</button>
+        <button onClick={() => nft.raribleTest()}> rarible</button>
+        <button onClick={() => nft.openSeaTest()}> open sea</button>
         <a
           className="App-link"
           href="https://reactjs.org"

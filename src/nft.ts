@@ -5,10 +5,16 @@ import {createRaribleSdk} from '@rarible/sdk';
 import {toContractAddress} from "@rarible/types";
 import {toUnionAddress} from "@rarible/types/build/union-address";
 import {PrepareMintRequest} from "@rarible/sdk/build/types/nft/mint/prepare-mint-request.type";
+import WalletConnect from "@walletconnect/client";
+import QRCodeModal from "@walletconnect/qrcode-modal";
+import WalletConnectProvider from "@walletconnect/web3-provider";
+
 import axios from "axios";
+import { OpenSeaPort, Network } from 'opensea-js'
 
 
-const darova = async () => {
+const raribleTest = async (sendMessage: Function = () => {console.log('kek param')}) => {
+    let hasBeenConnected = false;
     console.log('darova')
     const ethereumRpcMap: Record<number, string> = {
         1: "https://node-mainnet.rarible.com",
@@ -31,42 +37,59 @@ const darova = async () => {
             1: "https://node-mainnet.rarible.com",
             3: "https://node-ropsten.rarible.com",
             4: "https://node-rinkeby.rarible.com",
+            137: "https://matic-mainnet.chainstacklabs.com",
         },
         chainId: 1,
         qrcode: true,
-        qrcodeModal: {
-            async open(uri: string, cb: any, opts?: any) {
+        qrcodeModal:QRCodeModal,
+        // qrcodeModal: {
+        //     async open(uri: string, cb: any, opts?: any) {
+        //         sendMessage(JSON.stringify({type: 'LAUNCH', message: uri}))
+        //
+        //         console.log(uri)
+        //         // window.location.replace(uri);
+        //
+        //         // await cb()
+        //     },
+        //     async close() {
+        //         console.log('closed method was called ')
+        //         // const connection = await walletConnect.getConnection();
+        //         // const sdk = createRaribleSdk((await walletConnect.getConnection())., "staging");
+        //         // const isConnected = await walletConnect.isConnected()
+        //         return 'darova'
+        //     }
+        // },
+        // qrcodeModalOptions: {mobileLinks: ["metamask","trust"]},
+        // signingMethods: [
+        //     'eth_signTypedData_v4',
+        //
+        //     'eth_sendTransaction',
+        //     'eth_signTransaction',
+        //     'eth_sign',
+        //     'eth_signTypedData',
+        //
+        //     'eth_signTypedData_v1',
+        //     'eth_signTypedData_v2',
+        //     'eth_signTypedData_v3',
+        //     'eth_signTypedData_v4',
+        //     'personal_sign',
+        // ],
 
-                // console.log(cb.toString())
-                console.log(window)
-                // @ts-ignore
-                console.log(window?.TESTCHANNEL)
-                console.log(uri)
-                // await cb()
-            },
-            async close() {
-                console.log('skdfjksdjf')
-                // const connection = await walletConnect.getConnection();
-                // const sdk = createRaribleSdk((await walletConnect.getConnection())., "staging");
-                // const isConnected = await walletConnect.isConnected()
-                return 'darova'
-            }
-        },
         // qrcodeModalOptions: {
         //     mobileLinks: ['lol']
         // }
 
     }))
 
-
-    const connector = Connector
+        const connector = Connector
         .create(injected)
         .add(walletConnect)
 
 
     connector.connection.subscribe(async (con) => {
             console.log("connection: " + con.status);
-            if (con.status === "connected") {
+            if (con.status === "connected" && !hasBeenConnected) {
+                hasBeenConnected = true;
                 console.log('ccccccccccccccccon')
                 // prod
                 const collection = 'ETHEREUM:0xc9154424B823b10579895cCBE442d41b9Abd96Ed';
@@ -80,6 +103,7 @@ const darova = async () => {
                     collection: toContractAddress(collection),
                     minter: toUnionAddress(`ETHEREUM:${con.connection.address}`),
                 })
+                // window.location.replace('https://metamask.app.link/dapp/l-u-k-o-s.github.io/nft-react/index.html');
                 console.log(tokenId);
                 const mintRequest: PrepareMintRequest = {
                     collectionId: toContractAddress(collection),
@@ -88,6 +112,7 @@ const darova = async () => {
                 const mintResponse = await sdk.nft.mintAndSell(mintRequest);
                 const uri = await getIPFS(tokenId?.tokenId);
                 console.log(uri);
+                // window.location.replace('https://metamask.app.link/dapp/l-u-k-o-s.github.io/nft-react/index.html');
 
                 const response = await mintResponse.submit({
                     uri,
@@ -104,9 +129,10 @@ const darova = async () => {
                         account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
                         value: 1000,
                     }],
-                    currency: {
-                        "@type": "ETH",
-                    },
+                    currency: 'ERC20'
+                    // currency: {
+                    //     "@type": "ETH",
+                    // },
                 })
 
                 console.log(response);
@@ -152,5 +178,45 @@ const getIPFS = async (tokenId: any) => {
 
 }
 
+const openSeaTest = async () => {
 
-export default darova;
+//  Create WalletConnect Provider
+    const provider = new WalletConnectProvider({
+        rpc: {
+            1: "https://node-mainnet.rarible.com",
+        },
+        // qrcodeModal: {
+        //     async open(uri: string, cb: any, opts?: any) {
+        //         console.log(uri)
+        //         window.location.replace(uri);
+        //
+        //         // await cb()
+        //     },
+        //     async close() {
+        //         console.log('closed method was called ')
+        //         // const connection = await walletConnect.getConnection();
+        //         // const sdk = createRaribleSdk((await walletConnect.getConnection())., "staging");
+        //         // const isConnected = await walletConnect.isConnected()
+        //         return 'darova'
+        //     }
+        // },
+    });
+
+//  Enable session (triggers QR Code modal)
+    await provider.enable();
+
+    // @ts-ignore
+    const seaport = new OpenSeaPort(provider, {
+        networkName: Network.Main,
+    })
+
+
+};
+
+// @ts-ignore
+window.raribleTest = raribleTest;
+
+export default {
+    raribleTest,
+    openSeaTest,
+};

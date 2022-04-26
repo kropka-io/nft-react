@@ -6,7 +6,7 @@
     "@rarible/connector": "^0.8.52-beta18",
     "@rarible/connector-helper": "^0.8.52-beta18",
     "@rarible/connector-walletconnect": "^0.8.52-beta18",
-    "@rarible/sdk": "^0.8.52",
+    "@rarible/sdk": "^0.8.52-beta18",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^13.5.0",
@@ -17,13 +17,15 @@
     "axios": "^0.26.1",
     "ethers": "^5.6.4",
     "gh-pages": "^3.2.3",
+    "opensea-js": "^3.0.4",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-scripts": "4.0.3",
     "tslib": "2.3.1",
     "typescript": "^4.5.0",
+    "walletconnect": "^1.7.7",
     "web-vitals": "^2.1.4",
-    "web3": "1.5.0"
+    "web3": "1.7.3"
   },
   "scripts": {
     "start": "react-scripts start",
