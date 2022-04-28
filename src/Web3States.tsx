@@ -15,7 +15,7 @@ export class Web3States extends React.Component<{}, {
             // @ts-ignore
             ethereum: window.ethereum,
             // @ts-ignore
-            web3Provider: window.web3.currentProvider,
+            web3Provider: window.web3?.currentProvider,
         };
         this.timerID = setInterval(
             () => this.tick(),
@@ -41,7 +41,7 @@ export class Web3States extends React.Component<{}, {
             // @ts-ignore
             ethereum: window.ethereum,
             // @ts-ignore
-            web3Provider: window.web3.currentProvider,
+            web3Provider: window.web3?.currentProvider,
         });
     }
 
