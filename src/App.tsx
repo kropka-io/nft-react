@@ -2,6 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import nft from "./nft";
+import {Web3States} from "./Web3States";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
+        <Web3States/>
         <button onClick={() => nft.raribleTest()}> rarible</button>
         <button onClick={() => nft.openSeaTest()}> open sea</button>
         <a
