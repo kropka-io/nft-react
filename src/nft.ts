@@ -1,19 +1,23 @@
-import {Connector, InjectedWeb3ConnectionProvider} from "@rarible/connector";
+import {
+    Connector,
+    IConnectorStateProvider,
+    InjectedWeb3ConnectionProvider
+} from "@rarible/connector";
 import {WalletConnectConnectionProvider} from "@rarible/connector-walletconnect";
 import {mapEthereumWallet} from '@rarible/connector-helper';
 import {createRaribleSdk} from '@rarible/sdk';
 import {toContractAddress} from "@rarible/types";
 import {toUnionAddress} from "@rarible/types/build/union-address";
 import {PrepareMintRequest} from "@rarible/sdk/build/types/nft/mint/prepare-mint-request.type";
-import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/qrcode-modal";
-import WalletConnectProvider from "@walletconnect/web3-provider";
+
 
 import axios from "axios";
-import { OpenSeaPort, Network } from 'opensea-js'
 
 
-const raribleTest = async (sendMessage: Function = () => {console.log('kek param')}) => {
+// import {CustomProvider} from "./CustomProvider";
+
+
+const raribleTest = async (ipfsUri: string = '', sendMessage: Function = () => {console.log('default console log')}) => {
     let hasBeenConnected = false;
     console.log('darova')
     const ethereumRpcMap: Record<number, string> = {
@@ -24,6 +28,7 @@ const raribleTest = async (sendMessage: Function = () => {console.log('kek param
     }
 
     const injected = mapEthereumWallet(new InjectedWeb3ConnectionProvider())
+
     const walletConnect = mapEthereumWallet(new WalletConnectConnectionProvider({
 
         bridge: "https://bridge.walletconnect.org",
@@ -34,63 +39,65 @@ const raribleTest = async (sendMessage: Function = () => {console.log('kek param
             name: "WalletConnect",
         },
         rpc: {
-            1: "https://node-mainnet.rarible.com",
+            // 1: "https://node-mainnet.rarible.com",
+            1: "https://mainnet-nethermind.blockscout.com/",
             3: "https://node-ropsten.rarible.com",
             4: "https://node-rinkeby.rarible.com",
             137: "https://matic-mainnet.chainstacklabs.com",
         },
         chainId: 1,
         qrcode: true,
-        qrcodeModal:QRCodeModal,
-        // qrcodeModal: {
-        //     async open(uri: string, cb: any, opts?: any) {
-        //         sendMessage(JSON.stringify({type: 'LAUNCH', message: uri}))
-        //
-        //         console.log(uri)
-        //         // window.location.replace(uri);
-        //
-        //         // await cb()
-        //     },
-        //     async close() {
-        //         console.log('closed method was called ')
-        //         // const connection = await walletConnect.getConnection();
-        //         // const sdk = createRaribleSdk((await walletConnect.getConnection())., "staging");
-        //         // const isConnected = await walletConnect.isConnected()
-        //         return 'darova'
-        //     }
-        // },
-        // qrcodeModalOptions: {mobileLinks: ["metamask","trust"]},
-        // signingMethods: [
-        //     'eth_signTypedData_v4',
-        //
-        //     'eth_sendTransaction',
-        //     'eth_signTransaction',
-        //     'eth_sign',
-        //     'eth_signTypedData',
-        //
-        //     'eth_signTypedData_v1',
-        //     'eth_signTypedData_v2',
-        //     'eth_signTypedData_v3',
-        //     'eth_signTypedData_v4',
-        //     'personal_sign',
-        // ],
+        // qrcodeModal:QRCodeModal,
+        qrcodeModal: {
+            async open(uri: string, cb: any, opts?: any) {
+                sendMessage(JSON.stringify({type: 'LAUNCH', message: uri}))
+                console.log(uri)
+            },
+            async close() {
+                console.log('closed method was called ')
+                // const connection = await walletConnect.getConnection();
+                // const sdk = createRaribleSdk((await walletConnect.getConnection())., "staging");
+                // const isConnected = await walletConnect.isConnected()
+                return 'darova'
+            }
+        },
+        qrcodeModalOptions: {mobileLinks: ["metamask","trust"]},
+        signingMethods: [
+            'eth_signTypedData_v4',
 
-        // qrcodeModalOptions: {
-        //     mobileLinks: ['lol']
-        // }
+            'eth_sendTransaction',
+            'eth_signTransaction',
+            'eth_sign',
+            'eth_signTypedData',
 
+            'eth_signTypedData_v1',
+            'eth_signTypedData_v2',
+            'eth_signTypedData_v3',
+            'eth_signTypedData_v4',
+            'personal_sign',
+        ],
     }))
 
+    const state: IConnectorStateProvider = {
+        async getValue(): Promise<string | undefined> {
+            const value = localStorage.getItem("saved_provider")
+            return value ? value : undefined
+        },
+        async setValue(value: string | undefined): Promise<void> {
+            localStorage.setItem("saved_provider", value || "")
+        },
+    }
+
         const connector = Connector
-        .create(injected)
-        .add(walletConnect)
+            .create(injected, state)
+            .add(walletConnect)
 
 
     connector.connection.subscribe(async (con) => {
             console.log("connection: " + con.status);
             if (con.status === "connected" && !hasBeenConnected) {
                 hasBeenConnected = true;
-                console.log('ccccccccccccccccon')
+                console.log('connection logic started')
                 // prod
                 const collection = 'ETHEREUM:0xc9154424B823b10579895cCBE442d41b9Abd96Ed';
                 // staging
@@ -103,17 +110,15 @@ const raribleTest = async (sendMessage: Function = () => {console.log('kek param
                     collection: toContractAddress(collection),
                     minter: toUnionAddress(`ETHEREUM:${con.connection.address}`),
                 })
-                // window.location.replace('https://metamask.app.link/dapp/l-u-k-o-s.github.io/nft-react/index.html');
                 console.log(tokenId);
                 const mintRequest: PrepareMintRequest = {
+                    // @ts-ignore
                     collectionId: toContractAddress(collection),
                     tokenId,
                 };
                 const mintResponse = await sdk.nft.mintAndSell(mintRequest);
-                const uri = await getIPFS(tokenId?.tokenId);
+                const uri = await getIPFS(ipfsUri, tokenId?.tokenId);
                 console.log(uri);
-                // window.location.replace('https://metamask.app.link/dapp/l-u-k-o-s.github.io/nft-react/index.html');
-
                 const response = await mintResponse.submit({
                     uri,
                     supply: 1,
@@ -129,10 +134,10 @@ const raribleTest = async (sendMessage: Function = () => {console.log('kek param
                         account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
                         value: 1000,
                     }],
-                    currency: 'ERC20'
-                    // currency: {
-                    //     "@type": "ETH",
-                    // },
+                    // currency: 'ERC20'
+                    currency: {
+                        "@type": "ETH",
+                    },
                 })
 
                 console.log(response);
@@ -147,11 +152,11 @@ const raribleTest = async (sendMessage: Function = () => {console.log('kek param
     console.log('dkdkjd')
 }
 
-const getIPFS = async (tokenId: any) => {
+const getIPFS = async (ipfsUri: string, tokenId: any) => {
     const obj = {
         "name": "112",
         "description": "123",
-        "image": "ipfs://ipfs/QmdFFGs19hry4NjWMgZj2XTxGFEhywRsvD41bpR68uHCCq/image.png",
+        "image": ipfsUri,
         "external_url": `https://rarible.com/token/0xc9154424B823b10579895cCBE442d41b9Abd96Ed:${tokenId}`,
         "attributes": []
     };
@@ -171,52 +176,15 @@ const getIPFS = async (tokenId: any) => {
             "Content-Type": "multipart/form-data",
         },
     });
-    console.log(response);
-    console.log(2432452352345)
+    console.log('ended json upload on ipfs ')
 
     return `ipfs://ipfs/${response.data.IpfsHash}`
 
 }
-
-const openSeaTest = async () => {
-
-//  Create WalletConnect Provider
-    const provider = new WalletConnectProvider({
-        rpc: {
-            1: "https://node-mainnet.rarible.com",
-        },
-        // qrcodeModal: {
-        //     async open(uri: string, cb: any, opts?: any) {
-        //         console.log(uri)
-        //         window.location.replace(uri);
-        //
-        //         // await cb()
-        //     },
-        //     async close() {
-        //         console.log('closed method was called ')
-        //         // const connection = await walletConnect.getConnection();
-        //         // const sdk = createRaribleSdk((await walletConnect.getConnection())., "staging");
-        //         // const isConnected = await walletConnect.isConnected()
-        //         return 'darova'
-        //     }
-        // },
-    });
-
-//  Enable session (triggers QR Code modal)
-    await provider.enable();
-
-    // @ts-ignore
-    const seaport = new OpenSeaPort(provider, {
-        networkName: Network.Main,
-    })
-
-
-};
 
 // @ts-ignore
 window.raribleTest = raribleTest;
 
 export default {
     raribleTest,
-    openSeaTest,
 };

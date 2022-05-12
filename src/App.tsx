@@ -14,7 +14,6 @@ function App() {
         </p>
         <Web3States/>
         <button onClick={() => nft.raribleTest()}> rarible</button>
-        <button onClick={() => nft.openSeaTest()}> open sea</button>
         <a
           className="App-link"
           href="https://reactjs.org"
