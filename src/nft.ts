@@ -118,6 +118,7 @@ const raribleTest = async (ipfsUri: string = '', sendMessage: Function = () => {
                 };
                 const mintResponse = await sdk.nft.mintAndSell(mintRequest);
                 const uri = await getIPFS(ipfsUri, tokenId?.tokenId);
+                sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
                 console.log(uri);
                 const response = await mintResponse.submit({
                     uri,
