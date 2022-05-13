@@ -1,8 +1,4 @@
-import {
-    Connector,
-    IConnectorStateProvider,
-    InjectedWeb3ConnectionProvider
-} from "@rarible/connector";
+import {Connector} from "@rarible/connector";
 import {WalletConnectConnectionProvider} from "@rarible/connector-walletconnect";
 import {mapEthereumWallet} from '@rarible/connector-helper';
 import {createRaribleSdk} from '@rarible/sdk';
@@ -13,22 +9,14 @@ import {PrepareMintRequest} from "@rarible/sdk/build/types/nft/mint/prepare-mint
 
 import axios from "axios";
 
+// const ethereumRpcMap: Record<number, string> = {
+//     1: "https://node-mainnet.rarible.com",
+//     3: "https://node-ropsten.rarible.com",
+//     4: "https://node-rinkeby.rarible.com",
+//     17: "https://node-e2e.rarible.com",
+// }
 
-// import {CustomProvider} from "./CustomProvider";
-
-
-const raribleTest = async (ipfsUri: string = '', sendMessage: Function = () => {console.log('default console log')}) => {
-    let hasBeenConnected = false;
-    console.log('darova')
-    const ethereumRpcMap: Record<number, string> = {
-        1: "https://node-mainnet.rarible.com",
-        3: "https://node-ropsten.rarible.com",
-        4: "https://node-rinkeby.rarible.com",
-        17: "https://node-e2e.rarible.com",
-    }
-
-    const injected = mapEthereumWallet(new InjectedWeb3ConnectionProvider())
-
+const getConnector = async (sendMessage: Function) => {
     const walletConnect = mapEthereumWallet(new WalletConnectConnectionProvider({
 
         bridge: "https://bridge.walletconnect.org",
@@ -55,13 +43,10 @@ const raribleTest = async (ipfsUri: string = '', sendMessage: Function = () => {
             },
             async close() {
                 console.log('closed method was called ')
-                // const connection = await walletConnect.getConnection();
-                // const sdk = createRaribleSdk((await walletConnect.getConnection())., "staging");
-                // const isConnected = await walletConnect.isConnected()
                 return 'darova'
             }
         },
-        qrcodeModalOptions: {mobileLinks: ["metamask","trust"]},
+        qrcodeModalOptions: {mobileLinks: ["metamask", "trust"]},
         signingMethods: [
             'eth_signTypedData_v4',
 
@@ -78,26 +63,44 @@ const raribleTest = async (ipfsUri: string = '', sendMessage: Function = () => {
         ],
     }))
 
-    const state: IConnectorStateProvider = {
-        async getValue(): Promise<string | undefined> {
-            const value = localStorage.getItem("saved_provider")
-            return value ? value : undefined
-        },
-        async setValue(value: string | undefined): Promise<void> {
-            localStorage.setItem("saved_provider", value || "")
-        },
-    }
+    return Connector.create(walletConnect);
+};
 
-        const connector = Connector
-            .create(injected, state)
-            .add(walletConnect)
+const connectWallet = async (sendMessage: Function = () => {
+    console.log('connectWallet default console log')
+}) => {
+    const connector = await getConnector(sendMessage);
+    connector.connection.subscribe(async (con) => {
+            console.log("connection: " + con.status);
+            if (con.status === "connected") {
+                sendMessage(JSON.stringify({type: 'CONNECTED', message: null}))
+            }
+        }
+    )
 
+    await connect(connector)
+};
+
+const disconnectWallet = () => {
+    localStorage.setItem('walletconnect', '');
+};
+
+
+const mintAndSell = async (
+    ipfsUri: string = '',
+    name: string = 'Default name',
+    description: string = 'Default description',
+    price: string = '1',
+    sendMessage: Function = () => {
+        console.log('mintAndSell default console log')
+    },
+) => {
+    const connector = await getConnector(sendMessage);
 
     connector.connection.subscribe(async (con) => {
             console.log("connection: " + con.status);
-            if (con.status === "connected" && !hasBeenConnected) {
-                hasBeenConnected = true;
-                console.log('connection logic started')
+            if (con.status === "connected") {
+                console.log('mint and sell logic started')
                 // prod
                 const collection = 'ETHEREUM:0xc9154424B823b10579895cCBE442d41b9Abd96Ed';
                 // staging
@@ -117,14 +120,16 @@ const raribleTest = async (ipfsUri: string = '', sendMessage: Function = () => {
                     tokenId,
                 };
                 const mintResponse = await sdk.nft.mintAndSell(mintRequest);
-                const uri = await getIPFS(ipfsUri, tokenId?.tokenId);
+                const uri = await getIPFS(ipfsUri, tokenId?.tokenId, name, description);
                 sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
                 console.log(uri);
+                console.log(`the price is ${parseFloat(price)}`)
                 const response = await mintResponse.submit({
                     uri,
                     supply: 1,
                     lazyMint: true,
-                    price: 1,
+                    // price: 1,
+                    price: parseFloat(price),
                     creators: [
                         {
                             account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
@@ -135,7 +140,6 @@ const raribleTest = async (ipfsUri: string = '', sendMessage: Function = () => {
                         account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
                         value: 1000,
                     }],
-                    // currency: 'ERC20'
                     currency: {
                         "@type": "ETH",
                     },
@@ -144,29 +148,33 @@ const raribleTest = async (ipfsUri: string = '', sendMessage: Function = () => {
                 console.log(response);
             }
         }
-    )
+    );
 
+    await connect(connector)
+
+};
+
+const connect = async (connector: any) => {
     const option = (await connector.getOptions())[0]; // get list of available option
     console.log(option);
-    const tmp = await connector.connect(option);
+    await connector.connect(option);
+};
 
-    console.log('dkdkjd')
-}
 
-const getIPFS = async (ipfsUri: string, tokenId: any) => {
+const getIPFS = async (ipfsUri: string, tokenId: any, name: string, description: string) => {
     const obj = {
-        "name": "112",
-        "description": "123",
-        "image": ipfsUri,
-        "external_url": `https://rarible.com/token/0xc9154424B823b10579895cCBE442d41b9Abd96Ed:${tokenId}`,
-        "attributes": []
+        name: name,
+        description: description,
+        image: ipfsUri,
+        external_url: `https://rarible.com/token/0xc9154424B823b10579895cCBE442d41b9Abd96Ed:${tokenId}`,
+        attributes: []
     };
 
     const form = new FormData();
 
     const fileName = 'test.json';
 
-    form.append('file', new Blob([JSON.stringify(obj)], {type: 'text/json'} ), fileName);
+    form.append('file', new Blob([JSON.stringify(obj)], {type: 'text/json'}), fileName);
 
 
     const response = await axios({
@@ -177,15 +185,19 @@ const getIPFS = async (ipfsUri: string, tokenId: any) => {
             "Content-Type": "multipart/form-data",
         },
     });
-    console.log('ended json upload on ipfs ')
+    console.log('ended json upload to ipfs ')
 
     return `ipfs://ipfs/${response.data.IpfsHash}`
 
 }
 
 // @ts-ignore
-window.raribleTest = raribleTest;
+window.mintAndSell = mintAndSell;
+// @ts-ignore
+window.connectWallet = connectWallet;
+// @ts-ignore
+window.disconnectWallet = disconnectWallet;
 
 export default {
-    raribleTest,
+    mintAndSell,
 };
