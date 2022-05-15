@@ -143,7 +143,14 @@ const mintAndSell = async (
                     currency: {
                         "@type": "ETH",
                     },
-                })
+                });
+
+                sendMessage(JSON.stringify({
+                    type: 'RESULT',
+                    message: {
+                        link: `https://rarible.com/token/0xc9154424B823b10579895cCBE442d41b9Abd96Ed:${tokenId?.tokenId}`,
+                    },
+                }));
 
                 console.log(response);
             }
