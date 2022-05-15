@@ -8,13 +8,24 @@ import {PrepareMintRequest} from "@rarible/sdk/build/types/nft/mint/prepare-mint
 
 
 import axios from "axios";
+let dartCommunicationPort;
 
-// const ethereumRpcMap: Record<number, string> = {
-//     1: "https://node-mainnet.rarible.com",
-//     3: "https://node-ropsten.rarible.com",
-//     4: "https://node-rinkeby.rarible.com",
-//     17: "https://node-e2e.rarible.com",
-// }
+// listen for messages from dart
+window.addEventListener('message', function(event) {
+    console.log(`Message from dart: ${event.data}`);
+    if (event.data === 'capturePort') {
+        // capture port2 coming from the Dart side
+        if (event.ports[0] != null) {
+            console.log('Port set');
+            // the port is ready for communication,
+            // so you can use port.postMessage(message); wherever you want
+            dartCommunicationPort = event.ports[0];
+            dartCommunicationPort.onmessage = function (event) {
+                console.log(`Message from dart side ${event.data}`);
+            };
+        }
+    }
+}, false);
 
 const getConnector = async (sendMessage: Function) => {
     const walletConnect = mapEthereumWallet(new WalletConnectConnectionProvider({
