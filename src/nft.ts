@@ -6,21 +6,18 @@ import {toContractAddress} from "@rarible/types";
 import {toUnionAddress} from "@rarible/types/build/union-address";
 import {PrepareMintRequest} from "@rarible/sdk/build/types/nft/mint/prepare-mint-request.type";
 
-
 import axios from "axios";
-let dartCommunicationPort;
 
 // listen for messages from dart
 window.addEventListener('message', function(event) {
-    console.log(`Message from dart: ${event.data}`);
     if (event.data === 'capturePort') {
         // capture port2 coming from the Dart side
         if (event.ports[0] != null) {
             console.log('Port set');
-            // the port is ready for communication,
-            // so you can use port.postMessage(message); wherever you want
-            dartCommunicationPort = event.ports[0];
-            dartCommunicationPort.onmessage = function (event) {
+            // @ts-ignore
+            window.dartCommunicationPort = event.ports[0];
+            // @ts-ignore
+            window.dartCommunicationPort.onmessage = function (event) {
                 console.log(`Message from dart side ${event.data}`);
             };
         }
@@ -92,8 +89,9 @@ const connectWallet = async (sendMessage: Function = () => {
     await connect(connector)
 };
 
-const disconnectWallet = () => {
+const disconnectWallet = (sendMessage: Function) => {
     localStorage.setItem('walletconnect', '');
+    sendMessage(JSON.stringify({type: 'DISCONNECTED', message: null}))
 };
 
 
@@ -139,7 +137,6 @@ const mintAndSell = async (
                     uri,
                     supply: 1,
                     lazyMint: true,
-                    // price: 1,
                     price: parseFloat(price),
                     creators: [
                         {
@@ -173,7 +170,7 @@ const mintAndSell = async (
 };
 
 const connect = async (connector: any) => {
-    const option = (await connector.getOptions())[0]; // get list of available option
+    const option = (await connector.getOptions())[0];
     console.log(option);
     await connector.connect(option);
 };
