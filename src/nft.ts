@@ -9,9 +9,8 @@ import {PrepareMintRequest} from "@rarible/sdk/build/types/nft/mint/prepare-mint
 import axios from "axios";
 
 // listen for messages from dart
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
     if (event.data === 'capturePort') {
-        // capture port2 coming from the Dart side
         if (event.ports[0] != null) {
             console.log('Port set');
             // @ts-ignore
@@ -23,6 +22,11 @@ window.addEventListener('message', function(event) {
         }
     }
 }, false);
+
+const defaultSendMessage = (stringParam: string) => {
+    // @ts-ignore
+    window?.dartCommunicationPort?.postMessage(stringParam);
+};
 
 const getConnector = async (sendMessage: Function) => {
     const walletConnect = mapEthereumWallet(new WalletConnectConnectionProvider({
@@ -130,10 +134,11 @@ const mintAndSell = async (
                 };
                 const mintResponse = await sdk.nft.mintAndSell(mintRequest);
                 const uri = await getIPFS(ipfsUri, tokenId?.tokenId, name, description);
+                sendMessage(JSON.stringify({type: 'LOADED_TO_IPFS', message: null}))
                 sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
                 console.log(uri);
                 console.log(`the price is ${parseFloat(price)}`)
-                const response = await mintResponse.submit({
+                await mintResponse.submit({
                     uri,
                     supply: 1,
                     lazyMint: true,
@@ -152,7 +157,6 @@ const mintAndSell = async (
                         "@type": "ETH",
                     },
                 });
-
                 sendMessage(JSON.stringify({
                     type: 'RESULT',
                     message: {
@@ -160,7 +164,8 @@ const mintAndSell = async (
                     },
                 }));
 
-                console.log(response);
+                console.log('EVERYTHING COMPLETED');
+                sendMessage(JSON.stringify({type: 'MINTED_AND_PUT_ON_SALE', message: null}))
             }
         }
     );
@@ -212,6 +217,15 @@ window.mintAndSell = mintAndSell;
 window.connectWallet = connectWallet;
 // @ts-ignore
 window.disconnectWallet = disconnectWallet;
+
+window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+    console.log(errorMsg, url, lineNumber);
+    defaultSendMessage(JSON.stringify({
+        type: 'ERROR',
+        message: null,
+    }))
+    return false;
+}
 
 export default {
     mintAndSell,
