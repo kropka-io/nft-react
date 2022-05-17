@@ -157,15 +157,14 @@ const mintAndSell = async (
                         "@type": "ETH",
                     },
                 });
+
+                console.log('EVERYTHING COMPLETED');
                 sendMessage(JSON.stringify({
-                    type: 'RESULT',
+                    type: 'MINTED_AND_PUT_ON_SALE',
                     message: {
                         link: `https://rarible.com/token/0xc9154424B823b10579895cCBE442d41b9Abd96Ed:${tokenId?.tokenId}`,
                     },
-                }));
-
-                console.log('EVERYTHING COMPLETED');
-                sendMessage(JSON.stringify({type: 'MINTED_AND_PUT_ON_SALE', message: null}))
+                }))
             }
         }
     );
