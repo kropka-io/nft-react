@@ -104,7 +104,7 @@ const mintAndSell = async (
     name: string = 'Default name',
     description: string = 'Default description',
     price: string = '1',
-    royalty: string,
+    royalty: string = '0',
     sendMessage: Function = () => {
         console.log('mintAndSell default console log')
     },
@@ -139,10 +139,6 @@ const mintAndSell = async (
                 sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
                 console.log(uri);
                 console.log(`the price is ${parseFloat(price)}`)
-                const royalties = royalty ? [{
-                        account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
-                        value: parseFloat(royalty) * 100,
-                    }] : undefined;
                 await mintResponse.submit({
                     uri,
                     supply: 1,
@@ -154,8 +150,10 @@ const mintAndSell = async (
                             value: 10000,
                         },
                     ],
-
-                    royalties,
+                    royalties: [{
+                        account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
+                        value: parseFloat(royalty) * 100,
+                    }],
                     currency: {
                         "@type": "ETH",
                     },
