@@ -152,7 +152,7 @@ const mintAndSell = async (
                     ],
                     royalties: [{
                         account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
-                        value: parseFloat(royalty) * 100,
+                        value: parseFloat(royalty) * 100 || 0,
                     }],
                     currency: {
                         "@type": "ETH",
