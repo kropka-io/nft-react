@@ -58,7 +58,7 @@ const getConnector = async (sendMessage: Function) => {
                 return 'darova'
             }
         },
-        qrcodeModalOptions: {mobileLinks: ["metamask", "trust"]},
+        // qrcodeModalOptions: {mobileLinks: ["metamask", "trust"]},
         signingMethods: [
             'eth_signTypedData_v4',
 
