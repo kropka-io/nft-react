@@ -85,7 +85,9 @@ const connectWallet = async (sendMessage: Function = () => {
     connector.connection.subscribe(async (con) => {
             console.log("connection: " + con.status);
             if (con.status === "connected") {
-                sendMessage(JSON.stringify({type: 'CONNECTED', message: null}))
+                sendMessage(JSON.stringify({type: 'CONNECTED', message: {
+                    adress: con.connection.address,
+                }}))
             }
         }
     )
