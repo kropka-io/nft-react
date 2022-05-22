@@ -199,12 +199,25 @@ const getIPFS = async (ipfsUri: string, tokenId: any, name: string, description:
     form.append('file', new Blob([JSON.stringify(obj)], {type: 'text/json'}), fileName);
 
 
+    // rarible pinata
+    // const response = await axios({
+    //     method: "post",
+    //     url: "https://pinata.rarible.com/upload",
+    //     data: form,
+    //     headers: {
+    //         "Content-Type": "multipart/form-data",
+    //     },
+    // });
+
+    // custom pinata
     const response = await axios({
         method: "post",
-        url: "https://pinata.rarible.com/upload",
+        url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
         data: form,
         headers: {
             "Content-Type": "multipart/form-data",
+            pinata_api_key: '54847e2d543b337f65a6',
+            pinata_secret_api_key: '47c8bc5bf00cb106e2173ef8b51c44e54d01307a3cf5ff28efa8692484d4ffb8',
         },
     });
     console.log('ended json upload to ipfs ')
