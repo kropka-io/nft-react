@@ -237,7 +237,7 @@ window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
     console.log(errorMsg, url, lineNumber);
     defaultSendMessage(JSON.stringify({
         type: 'ERROR',
-        message: null,
+        message: JSON.stringify(errorMsg),
     }))
     return false;
 }
