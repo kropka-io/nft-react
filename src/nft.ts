@@ -114,59 +114,66 @@ const mintAndSell = async (
     const connector = await getConnector(sendMessage);
 
     connector.connection.subscribe(async (con) => {
-            console.log("connection: " + con.status);
-            if (con.status === "connected") {
-                console.log('mint and sell logic started')
-                // prod
-                const collection = 'ETHEREUM:0xc9154424B823b10579895cCBE442d41b9Abd96Ed';
-                // staging
-                // const collection = 'ETHEREUM:0x6ede7f3c26975aad32a475e1021d8f6f39c89d82';
-                // dev
-                // const collection = 'ETHEREUM:0xB0EA149212Eb707a1E5FC1D2d3fD318a8d94cf05';
-                // @ts-ignore
-                const sdk = createRaribleSdk(con.connection.wallet, "prod");
-                const tokenId = await sdk.nft.generateTokenId({
-                    collection: toContractAddress(collection),
-                    minter: toUnionAddress(`ETHEREUM:${con.connection.address}`),
-                })
-                console.log(tokenId);
-                const mintRequest: PrepareMintRequest = {
+            try {
+                console.log("connection: " + con.status);
+                if (con.status === "connected") {
+                    console.log('mint and sell logic started')
+                    // prod
+                    const collection = 'ETHEREUM:0xc9154424B823b10579895cCBE442d41b9Abd96Ed';
+                    // staging
+                    // const collection = 'ETHEREUM:0x6ede7f3c26975aad32a475e1021d8f6f39c89d82';
+                    // dev
+                    // const collection = 'ETHEREUM:0xB0EA149212Eb707a1E5FC1D2d3fD318a8d94cf05';
                     // @ts-ignore
-                    collectionId: toContractAddress(collection),
-                    tokenId,
-                };
-                const mintResponse = await sdk.nft.mintAndSell(mintRequest);
-                const uri = await getIPFS(ipfsUri, tokenId?.tokenId, name, description);
-                sendMessage(JSON.stringify({type: 'LOADED_TO_IPFS', message: null}))
-                sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
-                console.log(uri);
-                console.log(`the price is ${parseFloat(price)}`)
-                await mintResponse.submit({
-                    uri,
-                    supply: 1,
-                    lazyMint: true,
-                    price: parseFloat(price),
-                    creators: [
-                        {
+                    const sdk = createRaribleSdk(con.connection.wallet, "prod");
+                    const tokenId = await sdk.nft.generateTokenId({
+                        collection: toContractAddress(collection),
+                        minter: toUnionAddress(`ETHEREUM:${con.connection.address}`),
+                    })
+                    console.log(tokenId);
+                    const mintRequest: PrepareMintRequest = {
+                        // @ts-ignore
+                        collectionId: toContractAddress(collection),
+                        tokenId,
+                    };
+                    const mintResponse = await sdk.nft.mintAndSell(mintRequest);
+                    const uri = await getIPFS(ipfsUri, tokenId?.tokenId, name, description);
+                    sendMessage(JSON.stringify({type: 'LOADED_TO_IPFS', message: null}))
+                    sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
+                    console.log(uri);
+                    console.log(`the price is ${parseFloat(price)}`)
+                    await mintResponse.submit({
+                        uri,
+                        supply: 1,
+                        lazyMint: true,
+                        price: parseFloat(price),
+                        creators: [
+                            {
+                                account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
+                                value: 10000,
+                            },
+                        ],
+                        royalties: [{
                             account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
-                            value: 10000,
+                            value: parseFloat(royalty) * 100 || 0,
+                        }],
+                        currency: {
+                            "@type": "ETH",
                         },
-                    ],
-                    royalties: [{
-                        account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
-                        value: parseFloat(royalty) * 100 || 0,
-                    }],
-                    currency: {
-                        "@type": "ETH",
-                    },
-                });
+                    });
 
-                console.log('EVERYTHING COMPLETED');
-                sendMessage(JSON.stringify({
-                    type: 'MINTED_AND_PUT_ON_SALE',
-                    message: {
-                        link: `https://rarible.com/token/0xc9154424B823b10579895cCBE442d41b9Abd96Ed:${tokenId?.tokenId}`,
-                    },
+                    console.log('EVERYTHING COMPLETED');
+                    sendMessage(JSON.stringify({
+                        type: 'MINTED_AND_PUT_ON_SALE',
+                        message: {
+                            link: `https://rarible.com/token/0xc9154424B823b10579895cCBE442d41b9Abd96Ed:${tokenId?.tokenId}`,
+                        },
+                    }))
+                }
+            } catch (e) {
+                defaultSendMessage(JSON.stringify({
+                    type: 'ERROR',
+                    message: JSON.stringify(e),
                 }))
             }
         }
