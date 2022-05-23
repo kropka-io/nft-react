@@ -145,12 +145,7 @@ const mintAndSell = async (
                     console.log(`the price is ${parseFloat(price)}`);
                     console.log(`the royalties is ${parseFloat(royalty)}`);
 
-                    const royalties = parseFloat(royalty) * 100 === 0 ? undefined : [{
-                        account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
-                        value: parseFloat(royalty) * 100 || 0,
-                    }]
-
-                    await mintResponse.submit({
+                    const submitRequest = {
                         uri,
                         supply: 1,
                         lazyMint: true,
@@ -161,11 +156,21 @@ const mintAndSell = async (
                                 value: 10000,
                             },
                         ],
-                        royalties: royalties,
                         currency: {
                             "@type": "ETH",
                         },
-                    });
+                    };
+
+                    if (parseFloat(royalty) * 100 !== 0) {
+                        // @ts-ignore
+                        submitRequest.royalties = [{
+                            account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
+                            value: parseFloat(royalty) * 100 || 0,
+                        }]
+                    }
+
+                    // @ts-ignore
+                    await mintResponse.submit(submitRequest);
 
                     console.log('EVERYTHING COMPLETED');
                     sendMessage(JSON.stringify({
