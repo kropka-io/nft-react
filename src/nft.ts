@@ -141,7 +141,13 @@ const mintAndSell = async (
                     sendMessage(JSON.stringify({type: 'LOADED_TO_IPFS', message: null}))
                     sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
                     console.log('ipfs url ' + uri);
-                    console.log(`the price is ${parseFloat(price)}`)
+                    console.log(`the price is ${parseFloat(price)}`);
+
+                    const royalties = parseFloat(royalty) * 100 === 0 ? [] : [{
+                        account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
+                        value: parseFloat(royalty) * 100 || 0,
+                    }]
+
                     await mintResponse.submit({
                         uri,
                         supply: 1,
@@ -153,10 +159,7 @@ const mintAndSell = async (
                                 value: 10000,
                             },
                         ],
-                        royalties: [{
-                            account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
-                            value: parseFloat(royalty) * 100 || 0,
-                        }],
+                        royalties: royalties,
                         currency: {
                             "@type": "ETH",
                         },
