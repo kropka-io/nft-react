@@ -140,6 +140,7 @@ const mintAndSell = async (
                     const uri = await getIPFS(ipfsUri, tokenId?.tokenId, name, description);
                     sendMessage(JSON.stringify({type: 'LOADED_TO_IPFS', message: null}))
                     sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
+                    setTimeout(() => {sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))}, 2000);
                     console.log('ipfs url ' + uri);
                     console.log(`the price is ${parseFloat(price)}`)
                     await mintResponse.submit({
