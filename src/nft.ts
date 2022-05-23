@@ -143,8 +143,9 @@ const mintAndSell = async (
                     setTimeout(() => {sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))}, 2000);
                     console.log('ipfs url ' + uri);
                     console.log(`the price is ${parseFloat(price)}`);
+                    console.log(`the royalties is ${parseFloat(royalty)}`);
 
-                    const royalties = parseFloat(royalty) * 100 === 0 ? [] : [{
+                    const royalties = parseFloat(royalty) * 100 === 0 ? undefined : [{
                         account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
                         value: parseFloat(royalty) * 100 || 0,
                     }]
