@@ -7,6 +7,7 @@ import {toUnionAddress} from "@rarible/types/build/union-address";
 import {PrepareMintRequest} from "@rarible/sdk/build/types/nft/mint/prepare-mint-request.type";
 
 import axios from "axios";
+import { toAddress, toBigNumber } from "@rarible/types";
 
 // listen for messages from dart
 window.addEventListener('message', function (event) {
@@ -136,7 +137,8 @@ const mintAndSell = async (
                         collectionId: toContractAddress(collection),
                         tokenId,
                     };
-                    const mintResponse = await sdk.nft.mintAndSell(mintRequest);
+                    const mintResponse = await sdk.nft.mint(mintRequest);
+                    // const mintResponse = await sdk.nft.mintAndSell(mintRequest);
                     const uri = await getIPFS(ipfsUri, tokenId?.tokenId, name, description);
                     sendMessage(JSON.stringify({type: 'LOADED_TO_IPFS', message: null}))
                     sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
@@ -145,11 +147,11 @@ const mintAndSell = async (
                     console.log(`the price is ${parseFloat(price)}`);
                     console.log(`the royalties is ${parseFloat(royalty)}`);
 
-                    await mintResponse.submit({
+                    const mintSubmitResponse = await mintResponse.submit({
                         uri,
                         supply: 1,
                         lazyMint: true,
-                        price: parseFloat(price),
+                        // price: parseFloat(price),
                         creators: [
                             {
                                 account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
@@ -160,11 +162,20 @@ const mintAndSell = async (
                             account: toUnionAddress(`ETHEREUM:${con.connection.address}`),
                             value: parseFloat(royalty) * 100 || 0,
                         }],
-                        currency: {
-                            "@type": "ETH",
-                        },
+                        // currency: {
+                        //     "@type": "ETH",
+                        // },
                     });
 
+                    // const tmp = await sdk.order.sell({ itemId: mintSubmitResponse.itemId });
+                    // tmp.submit({
+                    //     amount: 1, // amount to sell, in our case for ERC721 always will be 1
+                    //     maker: toAddress(account), // who sell an item
+                    //     originFees: [], // fees description
+                    //     payouts: [], // payouts
+                    //     price: toBigNumber(createOrderForm.price),
+                    //     takeAssetType: { assetClass: "ETH" }, // for what currency
+                    // });
                     console.log('EVERYTHING COMPLETED');
                     sendMessage(JSON.stringify({
                         type: 'MINTED_AND_PUT_ON_SALE',
