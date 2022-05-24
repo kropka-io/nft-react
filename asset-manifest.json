@@ -1,23 +1,22 @@
 {
   "files": {
     "main.css": "/nft-react/static/css/main.a617e044.chunk.css",
-    "main.js": "/nft-react/static/js/main.b01462fa.chunk.js",
-    "main.js.map": "/nft-react/static/js/main.b01462fa.chunk.js.map",
+    "main.js": "/nft-react/static/js/main.8c643b73.chunk.js",
+    "main.js.map": "/nft-react/static/js/main.8c643b73.chunk.js.map",
     "runtime-main.js": "/nft-react/static/js/runtime-main.26ccd06b.js",
     "runtime-main.js.map": "/nft-react/static/js/runtime-main.26ccd06b.js.map",
-    "static/js/2.158a698a.chunk.js": "/nft-react/static/js/2.158a698a.chunk.js",
-    "static/js/2.158a698a.chunk.js.map": "/nft-react/static/js/2.158a698a.chunk.js.map",
+    "static/js/2.a5650e9b.chunk.js": "/nft-react/static/js/2.a5650e9b.chunk.js",
+    "static/js/2.a5650e9b.chunk.js.map": "/nft-react/static/js/2.a5650e9b.chunk.js.map",
     "static/js/3.4b22a483.chunk.js": "/nft-react/static/js/3.4b22a483.chunk.js",
     "static/js/3.4b22a483.chunk.js.map": "/nft-react/static/js/3.4b22a483.chunk.js.map",
     "index.html": "/nft-react/index.html",
     "static/css/main.a617e044.chunk.css.map": "/nft-react/static/css/main.a617e044.chunk.css.map",
-    "static/js/2.158a698a.chunk.js.LICENSE.txt": "/nft-react/static/js/2.158a698a.chunk.js.LICENSE.txt",
-    "static/media/logo.6ce24c58.svg": "/nft-react/static/media/logo.6ce24c58.svg"
+    "static/js/2.a5650e9b.chunk.js.LICENSE.txt": "/nft-react/static/js/2.a5650e9b.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.26ccd06b.js",
-    "static/js/2.158a698a.chunk.js",
+    "static/js/2.a5650e9b.chunk.js",
     "static/css/main.a617e044.chunk.css",
-    "static/js/main.b01462fa.chunk.js"
+    "static/js/main.8c643b73.chunk.js"
   ]
 }
