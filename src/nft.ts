@@ -142,7 +142,6 @@ const mintAndSell = async (
                     const uri = await getIPFS(ipfsUri, tokenId?.tokenId, name, description);
                     sendMessage(JSON.stringify({type: 'LOADED_TO_IPFS', message: null}))
                     sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
-                    setTimeout(() => {sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))}, 2000);
                     console.log('ipfs url ' + uri);
                     console.log(`the price is ${parseFloat(price)}`);
                     console.log(`the royalties is ${parseFloat(royalty)}`);
@@ -167,15 +166,15 @@ const mintAndSell = async (
                         // },
                     });
 
-                    // const tmp = await sdk.order.sell({ itemId: mintSubmitResponse.itemId });
-                    // tmp.submit({
-                    //     amount: 1, // amount to sell, in our case for ERC721 always will be 1
-                    //     maker: toAddress(account), // who sell an item
-                    //     originFees: [], // fees description
-                    //     payouts: [], // payouts
-                    //     price: toBigNumber(createOrderForm.price),
-                    //     takeAssetType: { assetClass: "ETH" }, // for what currency
-                    // });
+                    sendMessage(JSON.stringify({type: 'LAUNCH', message: null}))
+                    const prepareSellResponse = await sdk.order.sell({ itemId: mintSubmitResponse.itemId });
+                    await prepareSellResponse.submit({
+                        amount: 1,
+                        price: parseFloat(price),
+                        currency: {
+                            "@type": "ETH",
+                        },
+                    });
                     console.log('EVERYTHING COMPLETED');
                     sendMessage(JSON.stringify({
                         type: 'MINTED_AND_PUT_ON_SALE',
