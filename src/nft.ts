@@ -7,7 +7,6 @@ import {toUnionAddress} from "@rarible/types/build/union-address";
 import {PrepareMintRequest} from "@rarible/sdk/build/types/nft/mint/prepare-mint-request.type";
 
 import axios from "axios";
-import { toAddress, toBigNumber } from "@rarible/types";
 
 // listen for messages from dart
 window.addEventListener('message', function (event) {
