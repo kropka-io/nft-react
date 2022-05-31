@@ -210,8 +210,12 @@ const mintAndSell = async (
                         throw e;
                     }
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.log(e);
+                sendMessage(JSON.stringify({
+                    type: 'ERROR',
+                    message: JSON.stringify(e.message),
+                }))
             }
         }
     );
