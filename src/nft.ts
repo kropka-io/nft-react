@@ -39,8 +39,8 @@ const getConnector = async (sendMessage: Function) => {
             name: "WalletConnect",
         },
         rpc: {
-            // 1: "https://node-mainnet.rarible.com",
-            1: "https://mainnet-nethermind.blockscout.com/",
+            1: "https://node-mainnet.rarible.com",
+            // 1: "https://mainnet-nethermind.blockscout.com/",
             3: "https://node-ropsten.rarible.com",
             4: "https://node-rinkeby.rarible.com",
             137: "https://matic-mainnet.chainstacklabs.com",
